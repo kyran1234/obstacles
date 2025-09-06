@@ -49,24 +49,24 @@ class TurtleBot2Env(robot_gazebo_env.RobotGazeboEnv):
 
         # Internal Vars
         # Doesnt have any accesibles
-        self.controllers_list = []
+        # self.controllers_list = []
 
         # It doesnt use namespace
         self.robot_name_space = ""
         self.robot_number = robot_number
         # We launch the init function of the Parent Class robot_gazebo_env.RobotGazeboEnv
-        super(TurtleBot2Env, self).__init__(controllers_list=self.controllers_list,
+        super(TurtleBot2Env, self).__init__(controllers_list=[],  # 空列表表示无控制器
                                             robot_name_space=self.robot_name_space,
-                                            reset_controls=False,
+                                            reset_controls=False, # 不重置控制器（根本不用控制器）
                                             robot_number = robot_number,
-                                            start_init_physics_parameters=True, #代码选择不初始化仿真物理参数（如重力、摩擦系数等）
+                                            start_init_physics_parameters=False, #代码选择不初始化仿真物理参数（如重力、摩擦系数等）
                                             initial_pose = initial_pose,
                                             reset_world_or_sim="WORLD")
 
 
         print("aaa")
-        # self.gazebo.unpauseSim()
-        #self.controllers_object.reset_controllers()
+        self.gazebo.unpauseSim()#尝试去掉这一行的#
+        # self.controllers_object.reset_controllers()#尝试去掉这一行的#
         self._check_all_sensors_ready()
         print("bbb")
         # We Start all the ROS related Subscribers and publishers
