@@ -1,0 +1,288 @@
+<sdf version='1.7'>
+  <world name='default'>
+    <light name='sun' type='directional'>
+      <cast_shadows>1</cast_shadows>
+      <pose>0 0 10 0 -0 0</pose>
+      <diffuse>0.8 0.8 0.8 1</diffuse>
+      <specular>0.2 0.2 0.2 1</specular>
+      <attenuation>
+        <range>1000</range>
+        <constant>0.9</constant>
+        <linear>0.01</linear>
+        <quadratic>0.001</quadratic>
+      </attenuation>
+      <direction>-0.5 0.1 -0.9</direction>
+      <spot>
+        <inner_angle>0</inner_angle>
+        <outer_angle>0</outer_angle>
+        <falloff>0</falloff>
+      </spot>
+    </light>
+    <model name='ground_plane'>
+      <static>1</static>
+      <link name='link'>
+        <collision name='collision'>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <surface>
+            <contact>
+              <collide_bitmask>65535</collide_bitmask>
+              <ode/>
+            </contact>
+            <friction>
+              <ode>
+                <mu>100</mu>
+                <mu2>50</mu2>
+              </ode>
+              <torsional>
+                <ode/>
+              </torsional>
+            </friction>
+            <bounce/>
+          </surface>
+          <max_contacts>10</max_contacts>
+        </collision>
+        <visual name='visual'>
+          <cast_shadows>0</cast_shadows>
+          <geometry>
+            <plane>
+              <normal>0 0 1</normal>
+              <size>100 100</size>
+            </plane>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+          </material>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+    </model>
+    <gravity>0 0 -9.8</gravity>
+    <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
+    <atmosphere type='adiabatic'/>
+    <physics type='ode'>
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1</real_time_factor>
+      <real_time_update_rate>1000</real_time_update_rate>
+    </physics>
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.7 0.7 1</background>
+      <shadows>1</shadows>
+    </scene>
+    <wind/>
+    <spherical_coordinates>
+      <surface_model>EARTH_WGS84</surface_model>
+      <latitude_deg>0</latitude_deg>
+      <longitude_deg>0</longitude_deg>
+      <elevation>0</elevation>
+      <heading_deg>0</heading_deg>
+    </spherical_coordinates>
+    <model name='Kitchen Dining'>
+      <static>1</static>
+      <link name='link'>
+        <visual name='visual'>
+          <geometry>
+            <mesh>
+              <uri>model://kitchen_dining/meshes/kitchen_dining.dae</uri>
+            </mesh>
+          </geometry>
+        </visual>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <pose>1.26513 -1.39003 0 0 -0 0</pose>
+    </model>
+<!-- 使用actor标签创建随机运动的猫模型 -->
+    <actor name="cat_actor">
+      <pose>-1.13461 0.352882 0 0 0 0</pose>
+      
+      <!-- 皮肤 - 使用原有模型 -->
+      <skin>
+        <filename>/home/kryan/cat.dae</filename>
+        <scale>0.08 0.08 0.08</scale>
+      </skin>
+      
+      <!-- 动画 - 定义猫的行走动画 -->
+      <animation name="walking">
+        <filename>/home/kryan/cat.dae</filename>
+        <scale>0.08 0.08 0.08</scale>
+        <interpolate_x>true</interpolate_x>
+      </animation>
+      
+      <!-- 链接和碰撞体定义 -->
+      <link name="body">
+        <collision name="collision">
+          <geometry>
+            <mesh>
+              <uri>/home/kryan/cat.dae</uri>
+              <scale>0.08 0.08 0.08</scale>
+            </mesh>
+          </geometry>
+          <surface>
+            <friction>
+              <ode>
+                <mu>1</mu>
+                <mu2>1</mu2>
+              </ode>
+            </friction>
+            <bounce>
+              <restitution_coefficient>0</restitution_coefficient>
+            </bounce>
+            <contact>
+              <ode>
+                <kp>1e+13</kp>
+                <kd>1</kd>
+                <max_vel>0.01</max_vel>
+              </ode>
+            </contact>
+          </surface>
+        </collision>
+        
+        <visual name="visual">
+          <geometry>
+            <mesh>
+              <uri>/home/kryan/cat.dae</uri>
+              <scale>0.08 0.08 0.08</scale>
+            </mesh>
+          </geometry>
+          <material>
+            <ambient>0.3 0.3 0.3 1</ambient>
+            <diffuse>0.7 0.7 0.7 1</diffuse>
+            <specular>0.01 0.01 0.01 1</specular>
+          </material>
+        </visual>
+      </link>
+      
+      <!-- 脚本 - 控制猫的随机运动 -->
+      <script>
+        <loop>true</loop>
+        <delay_start>0.0</delay_start>
+        <auto_start>true</auto_start>
+        
+        <!-- 定义多个轨迹点，实现随机运动 -->
+        <trajectory id="0" type="walking">
+          <waypoint>
+            <time>0</time>
+            <pose>-1.13461 0.352882 0 0 0 0</pose>
+          </waypoint>
+          <waypoint>
+            <time>5</time>
+            <pose>-2.0 1.0 0 0 0 1.57</pose>
+          </waypoint>
+          <waypoint>
+            <time>10</time>
+            <pose>-1.5 2.5 0 0 0 3.14</pose>
+          </waypoint>
+          <waypoint>
+            <time>15</time>
+            <pose>-0.5 2.0 0 0 0 4.71</pose>
+          </waypoint>
+          <waypoint>
+            <time>20</time>
+            <pose>0.0 1.0 0 0 0 0</pose>
+          </waypoint>
+          <waypoint>
+            <time>25</time>
+            <pose>-1.13461 0.352882 0 0 0 0</pose>
+          </waypoint>
+        </trajectory>
+      </script>
+      
+      <!-- 插件配置 - 实现随机运动行为 -->
+      <plugin name="random_movement" filename="libRandomActorPlugin.so">
+        <min_speed>0.3</min_speed>
+        <max_speed>1.0</max_speed>
+        <min_turn_angle>-0.5</min_turn_angle>
+        <max_turn_angle>0.5</max_turn_angle>
+        <update_interval>3.0</update_interval>
+      </plugin>
+      
+      <!-- 碰撞检测配置 - 确保激光能检测到 -->
+      <plugin name="collision_detection" filename="libActorCollisionPlugin.so">
+        <collision>
+          <link name="body">
+            <collision name="collision">
+              <surface>
+                <contact>
+                  <collide_bitmask>0x01</collide_bitmask>
+                </contact>
+              </surface>
+            </collision>
+          </link>
+        </collision>
+        <scale>
+          <link name="body">1.2 1.2 1.2</link>
+        </scale>
+      </plugin>
+    </actor>
+
+    <model name='home-simple'>
+      <pose>1.62433 -4.19502 0 0 -0 0</pose>
+      <link name='Wall_10'>
+        <collision name='Wall_10_Collision'>
+          <geometry>
+            <box>
+              <size>6.5 0.15 2.5</size>
+            </box>
+          </geometry>
+          <pose>0 0 1.25 0 -0 0</pose>
+          <max_contacts>10</max_contacts>
+          <surface>
+            <contact>
+              <ode/>
+            </contact>
+            <bounce/>
+            <friction>
+              <torsional>
+                <ode/>
+              </torsional>
+              <ode/>
+            </friction>
+          </surface>
+        </collision>
+        <visual name='Wall_10_Visual'>
+          <pose>0 0 1.25 0 -0 0</pose>
+          <geometry>
+            <box>
+              <size>6.5 0.15 2.5</size>
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <uri>file://media/materials/scripts/gazebo.material</uri>
+              <name>Gazebo/Grey</name>
+            </script>
+            <ambient>1 1 1 1</ambient>
+          </material>
+          <meta>
+            <layer>0</layer>
+          </meta>
+        </visual>
+        <pose>-0 -4.12002 0 0 -0 0</pose>
+        <self_collide>0</self_collide>
+        <enable_wind>0</enable_wind>
+        <kinematic>0</kinematic>
+      </link>
+      <static>1</static>
+    </model>
+    <gui fullscreen='0'>
+      <camera name='user_camera'>
+        <pose>12.3396 -24.0486 18.0721 0 0.687643 1.9162</pose>
+        <view_controller>orbit</view_controller>
+        <projection_type>perspective</projection_type>
+      </camera>
+    </gui>
+  </world>
+</sdf>
+    

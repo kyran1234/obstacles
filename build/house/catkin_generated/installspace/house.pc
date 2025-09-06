@@ -1,0 +1,8 @@
+prefix=/home/kryan/workspace/install
+
+Name: house
+Description: Description of house
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 

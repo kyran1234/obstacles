@@ -1,0 +1,21 @@
+<launch>
+  <!-- 加载机器人描述 -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find house)/urdf/mybot_rviz.urdf.xacro" />
+
+  <!-- 启动机器人状态发布器 -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <!-- 启动关节状态发布器 -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+
+  <!-- 启动RViz -->
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find house)/rviz/mybot_rviz_config.rviz" />
+
+  <!-- 启动键盘控制节点 -->
+  <node name="teleop_twist_keyboard" pkg="teleop_twist_keyboard" type="teleop_twist_keyboard.py" output="screen">
+    <remap from="cmd_vel" to="/mybot_velocity_controller/cmd_vel"/>
+  </node>
+
+  <!-- 启动虚拟传感器数据发布器 -->
+  <node name="virtual_sensor_publisher" pkg="house" type="virtual_sensor_publisher.py" output="screen"/>
+</launch>

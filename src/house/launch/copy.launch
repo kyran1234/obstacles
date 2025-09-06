@@ -1,0 +1,40 @@
+<launch>
+  <!-- 设置参数 -->
+  <arg name="x_pos" default="0.0"/>
+  <arg name="y_pos" default="0.0"/>
+  <arg name="z_pos" default="0.0"/>
+  <param name="/use_sim_time" value="true" />
+  
+  <!-- 设置Gazebo使用GPU加速的环境变量 -->
+  <env name="GAZEBO_GPU_RENDERING" value="1" />  <!-- 启用GPU渲染:cite[1] -->
+  <env name="LIBGL_ALWAYS_SOFTWARE" value="0" />  <!-- 禁用强制软件渲染，允许硬件加速:cite[2] -->
+  <env name="GAZEBO_GPU_VENDOR" value="NVIDIA" />  <!-- 指定GPU供应商为NVIDIA:cite[2] -->
+  <env name="GAZEBO_RENDER_ENGINE" value="ogre" />  <!-- 指定使用Ogre渲染引擎:cite[1] -->
+  <!-- 对于某些系统（特别是WSL或特定Linux配置），可能还需要以下环境变量 -->
+  <!-- <env name="GALLIUM_DRIVER" value="d3d12" /> -->  <!-- 在WSL2中指定使用D3D12驱动后端 -->
+  <!-- <env name="__GLX_VENDOR_LIBRARY_NAME" value="nvidia" /> -->  <!-- 强制使用NVIDIA的GLX库 -->
+
+  <!-- 启动Gazebo -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" value="$(find house)/worlds/home_simple.world"/>
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+    <!-- 如果empty_world.launch支持，可以传递额外的环境变量 -->
+    <!-- 注意：某些Gazebo版本可能需要在系统级别设置环境变量而非launch文件中 -->
+  </include>
+
+  <!-- 加载机器人描述 - 更新路径 -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find house)/urdf/mybot.xacro" />
+
+  <!-- 在Gazebo中生成机器人模型 -->
+  <node pkg="gazebo_ros" type="spawn_model" name="spawn_urdf" args="-urdf -model mybot -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+
+  <!-- 启动机器人状态发布器 -->
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+  <!-- 启动cat控制器（可选） -->
+  <!-- <node name="cat_controller" pkg="house" type="cat_controller.py" output="screen"/> -->
+</launch>

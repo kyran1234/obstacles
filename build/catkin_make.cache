@@ -1,0 +1,2 @@
+house
+-DCATKIN_DEVEL_PREFIX=/home/kryan/workspace/devel -DCMAKE_INSTALL_PREFIX=/home/kryan/workspace/install -G Unix Makefiles
