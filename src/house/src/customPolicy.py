@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 import numpy as np
+import gymnasium as gym
 
 
 # def modified_shallow_nature_cnn(scaled_images, **kwargs):
@@ -132,21 +133,48 @@ class TinyFilterDeepNatureCNN(BaseFeaturesExtractor):
         return self.fc(self.cnn(observations))
 
 
+# class CustomShallowCNNPolicy(common.ActorCriticPolicy):
+#     
+#     def __init__(self, *args, **kwargs):
+#         super(CustomShallowCNNPolicy, self).__init__(*args, **kwargs, cnn_extractor=modified_shallow_nature_cnn, feature_extraction="cnn")
+# 
+# 
+# class CustomDeepCNNPolicy(common.ActorCriticPolicy):
+#     
+#     def __init__(self, *args, **kwargs):
+#         super(CustomDeepCNNPolicy, self).__init__(*args, **kwargs, cnn_extractor=modified_deep_nature_cnn, feature_extraction="cnn")
+# 
+# class CustomTinyDeepCNNPolicy(common.ActorCriticPolicy):
+#     
+#     def __init__(self, *args, **kwargs):
+#         super(CustomTinyDeepCNNPolicy, self).__init__(*args, **kwargs, cnn_extractor=tiny_filter_deep_nature_cnn, feature_extraction="cnn")
 class CustomShallowCNNPolicy(common.ActorCriticPolicy):
-    
     def __init__(self, *args, **kwargs):
-        super(CustomShallowCNNPolicy, self).__init__(*args, **kwargs, cnn_extractor=modified_shallow_nature_cnn, feature_extraction="cnn")
+        super(CustomShallowCNNPolicy, self).__init__(
+            *args,** kwargs,
+            features_extractor_class=ModifiedShallowNatureCNN,  # 替换为PyTorch特征提取器类
+            features_extractor_kwargs=dict(features_dim=128),  # 特征输出维度（与上面的类保持一致）
+            feature_extraction="cnn"  # 保持不变
+        )
 
-
+# 同理修改另外两个CNN策略类
 class CustomDeepCNNPolicy(common.ActorCriticPolicy):
-    
     def __init__(self, *args, **kwargs):
-        super(CustomDeepCNNPolicy, self).__init__(*args, **kwargs, cnn_extractor=modified_deep_nature_cnn, feature_extraction="cnn")
+        super(CustomDeepCNNPolicy, self).__init__(
+            *args,** kwargs,
+            features_extractor_class=ModifiedDeepNatureCNN,  # 对应修改后的Deep版本
+            features_extractor_kwargs=dict(features_dim=128),
+            feature_extraction="cnn"
+        )
 
 class CustomTinyDeepCNNPolicy(common.ActorCriticPolicy):
-    
     def __init__(self, *args, **kwargs):
-        super(CustomTinyDeepCNNPolicy, self).__init__(*args, **kwargs, cnn_extractor=tiny_filter_deep_nature_cnn, feature_extraction="cnn")
+        super(CustomTinyDeepCNNPolicy, self).__init__(
+            *args,** kwargs,
+            features_extractor_class=TinyFilterDeepNatureCNN,  # 对应修改后的Tiny版本
+            features_extractor_kwargs=dict(features_dim=128),
+            feature_extraction="cnn"
+        )
 
 
 class CustomMLPPolicy(common.ActorCriticPolicy):  # 补充完整父类

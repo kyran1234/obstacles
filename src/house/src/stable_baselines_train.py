@@ -5,7 +5,7 @@ import sys
 ros_path = '/opt/ros/neotic/lib/python3/dist-packages'
 if ros_path in sys.path:
     sys.path.remove(ros_path)
-import gym
+import gymnasium as gym
 from stable_baselines3.common.policies import ActorCriticPolicy
 from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv
 from stable_baselines3 import PPO
