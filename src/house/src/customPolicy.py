@@ -3,6 +3,7 @@ import stable_baselines3.common.policies as common
 # from stable_baselines3.common.tf_layers import conv, linear, conv_to_fc, lstm
 import torch
 import torch.nn as nn
+from stable_baselines3.common.policies import ActorCriticPolicy, BaseFeaturesExtractor
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 import numpy as np
 import gymnasium as gym
@@ -100,37 +101,34 @@ class ModifiedDeepNatureCNN(BaseFeaturesExtractor):
 #     layer_6 = activ(linear(layer_5, 'fc1', n_hidden=256, init_scale=np.sqrt(2)))
 #     layer_7 = activ(linear(layer_6, 'fc2', n_hidden=128, init_scale=np.sqrt(2)))
 #     return activ(linear(layer_7, 'fc3', n_hidden=128, init_scale=np.sqrt(2)))
-class TinyFilterDeepNatureCNN(BaseFeaturesExtractor):
+
+class TinyFilterDeepCNN(BaseFeaturesExtractor):
     def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 128):
         super().__init__(observation_space, features_dim)
-        n_input_channels = observation_space.shape[0]
+        # 假设输入观测是图像（调整通道数和尺寸以匹配你的实际观测）
+        n_input_channels = observation_space.shape[0]  # 根据你的观测空间修改
         self.cnn = nn.Sequential(
-            nn.Conv2d(n_input_channels, 6, kernel_size=2, stride=1),  # 原c1层
+            nn.Conv2d(n_input_channels, 6, kernel_size=2, stride=1),
             nn.ReLU(),
-            nn.Conv2d(6, 8, kernel_size=2, stride=1),  # 原c2层
+            nn.Conv2d(6, 8, kernel_size=2, stride=1),
             nn.ReLU(),
-            nn.Conv2d(8, 10, kernel_size=2, stride=1),  # 原c3层
+            nn.Conv2d(8, 10, kernel_size=2, stride=1),
             nn.ReLU(),
-            nn.Conv2d(10, 12, kernel_size=3, stride=1),  # 原c4层
+            nn.Conv2d(10, 12, kernel_size=3, stride=1),
             nn.ReLU(),
-            nn.Conv2d(12, 14, kernel_size=3, stride=1),  # 原c5层
+            nn.Conv2d(12, 14, kernel_size=3, stride=1),
             nn.ReLU(),
-            nn.Flatten(),
+            nn.Flatten(),  # 展平特征图
         )
+        # 计算CNN输出的维度（根据输入尺寸自动计算）
         with torch.no_grad():
             n_flatten = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape[1]
-        # 对应原fc1、fc2、fc3层
-        self.fc = nn.Sequential(
-            nn.Linear(n_flatten, 256),
-            nn.ReLU(),
-            nn.Linear(256, 128),
-            nn.ReLU(),
-            nn.Linear(128, features_dim),
-            nn.ReLU()
-        )
+        self.linear = nn.Sequential(nn.Linear(n_flatten, 256), nn.ReLU(),
+                                    nn.Linear(256, 128), nn.ReLU(),
+                                    nn.Linear(128, features_dim), nn.ReLU())
 
     def forward(self, observations: torch.Tensor) -> torch.Tensor:
-        return self.fc(self.cnn(observations))
+        return self.linear(self.cnn(observations))
 
 
 # class CustomShallowCNNPolicy(common.ActorCriticPolicy):
@@ -164,11 +162,13 @@ class CustomDeepCNNPolicy(common.ActorCriticPolicy):
             cnn_extractor=modified_deep_nature_cnn  # 移除feature_extraction参数
         )
 
-class CustomTinyDeepCNNPolicy(common.ActorCriticPolicy):
+class CustomTinyDeepCNNPolicy(ActorCriticPolicy):
     def __init__(self, *args, **kwargs):
-        super(CustomTinyDeepCNNPolicy, self).__init__(
+        super().__init__(
             *args, **kwargs,
-            cnn_extractor=tiny_filter_deep_nature_cnn  # 移除feature_extraction参数
+            features_extractor_class=TinyFilterDeepCNN,  # 使用自定义的PyTorch特征提取器
+            features_extractor_kwargs=dict(features_dim=128),  # 特征维度
+            net_arch=dict(pi=[], vf=[]),  # 可以根据需要添加后续全连接层
         )
 
 # 修复CustomMLPPolicy的语法错误
