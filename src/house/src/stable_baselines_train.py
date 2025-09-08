@@ -5,7 +5,7 @@ import sys
 ros_path = '/opt/ros/neotic/lib/python3/dist-packages'
 if ros_path in sys.path:
     sys.path.remove(ros_path)
-import gymnasium as gym
+import gym
 from stable_baselines3.common.policies import ActorCriticPolicy
 from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv
 from stable_baselines3 import PPO
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 	rospy.init_node('stable_training', anonymous=True, log_level=rospy.WARN)
 	env_temp = TurtleBot2MazeEnv
 	env = DummyVecEnv([lambda k=k:env_temp(world_file, k) for k in range(int(number_of_robots))])
-	model = PPO(CustomTinyDeepCNNPolicy, env, n_steps=900, ent_coef=0.01, learning_rate=0.0001, nminibatches=5, tensorboard_log="../PPO2_turtlebot_tensorboard/", verbose=1)
+	model = PPO(CustomTinyDeepCNNPolicy, env, n_steps=900, ent_coef=0.01, learning_rate=0.0001, batch_size=180, n_epochs=10, tensorboard_log="../PPO2_turtlebot_tensorboard/", verbose=1)
 	model.learn(total_timesteps=1200000)
 	model.save("ppo2_turtlebot")
 																																																																																																																																																											
