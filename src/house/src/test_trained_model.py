@@ -8,7 +8,7 @@ if ros_path in sys.path:
     sys.path.remove(ros_path)
 import gymnasium as gym
 from stable_baselines3.common.policies import ActorCriticPolicy
-from stable_baselines3.common.vec_env import SubprocVecEnv
+from stable_baselines3.common.vec_env import SubprocVecEnv, DummyVecEnv
 from stable_baselines3 import PPO
 sys.path.append('/opt/ros/neoti/lib/python3/dist-packages')
 from openai_ros.task_envs.turtlebot2.turtlebot2_maze import TurtleBot2MazeEnv
@@ -50,9 +50,10 @@ if __name__ == '__main__':
     goal_reaching_status = rospy.Subscriber('/goal_reaching_status', Bool, getGoalReachingStatus)
     #下面两行有问题
     env_temp = TurtleBot2MazeEnv
-    env = SubprocVecEnv([lambda k=k:env_temp(world_file, k) for k in range(int(number_of_robots))])
+    # env = SubprocVecEnv([lambda k=k:env_temp(world_file, k) for k in range(int(number_of_robots))])
     print("e")
     # env = env_temp(world_file, robot_number=int(robot_number))  # 关键修改
+    env = DummyVecEnv([lambda: TurtleBot2MazeEnv(world_file, robot_number=0)])
     print("f")
     model = PPO.load("ppo2_turtlebot_tr#3")
     print("g")

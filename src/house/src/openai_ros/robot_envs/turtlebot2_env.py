@@ -67,7 +67,7 @@ class TurtleBot2Env(robot_gazebo_env.RobotGazeboEnv):
         print("aaa")
         self.gazebo.unpauseSim()#尝试去掉这一行的#
         # self.controllers_object.reset_controllers()#尝试去掉这一行的#
-        self._check_all_sensors_ready()
+        # self._check_all_sensors_ready()
         print("bbb")
         # We Start all the ROS related Subscribers and publishers
         rospy.Subscriber("/odom", Odometry, self._odom_callback)
@@ -178,6 +178,7 @@ class TurtleBot2Env(robot_gazebo_env.RobotGazeboEnv):
 
     def _odom_callback(self, data):
         self.odom = data
+        # print(self.odom)
     
     def _camera_depth_image_raw_callback(self, data):
         self.camera_depth_image_raw = data
