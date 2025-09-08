@@ -148,41 +148,36 @@ class TinyFilterDeepNatureCNN(BaseFeaturesExtractor):
 #     
 #     def __init__(self, *args, **kwargs):
 #         super(CustomTinyDeepCNNPolicy, self).__init__(*args, **kwargs, cnn_extractor=tiny_filter_deep_nature_cnn, feature_extraction="cnn")
+# 修复所有自定义策略类，移除feature_extraction参数
+
 class CustomShallowCNNPolicy(common.ActorCriticPolicy):
     def __init__(self, *args, **kwargs):
         super(CustomShallowCNNPolicy, self).__init__(
-            *args,** kwargs,
-            features_extractor_class=ModifiedShallowNatureCNN,  # 替换为PyTorch特征提取器类
-            features_extractor_kwargs=dict(features_dim=128),  # 特征输出维度（与上面的类保持一致）
-            feature_extraction="cnn"  # 保持不变
+            *args, **kwargs,
+            cnn_extractor=modified_shallow_nature_cnn  # 移除feature_extraction参数
         )
 
-# 同理修改另外两个CNN策略类
 class CustomDeepCNNPolicy(common.ActorCriticPolicy):
     def __init__(self, *args, **kwargs):
         super(CustomDeepCNNPolicy, self).__init__(
-            *args,** kwargs,
-            features_extractor_class=ModifiedDeepNatureCNN,  # 对应修改后的Deep版本
-            features_extractor_kwargs=dict(features_dim=128),
-            feature_extraction="cnn"
+            *args, **kwargs,
+            cnn_extractor=modified_deep_nature_cnn  # 移除feature_extraction参数
         )
 
 class CustomTinyDeepCNNPolicy(common.ActorCriticPolicy):
     def __init__(self, *args, **kwargs):
         super(CustomTinyDeepCNNPolicy, self).__init__(
-            *args,** kwargs,
-            features_extractor_class=TinyFilterDeepNatureCNN,  # 对应修改后的Tiny版本
-            features_extractor_kwargs=dict(features_dim=128),
-            feature_extraction="cnn"
+            *args, **kwargs,
+            cnn_extractor=tiny_filter_deep_nature_cnn  # 移除feature_extraction参数
         )
 
-
-class CustomMLPPolicy(common.ActorCriticPolicy):  # 补充完整父类
+# 修复CustomMLPPolicy的语法错误
+class CustomMLPPolicy(common.ActorCriticPolicy):  # 这里之前是common.，缺少类名
     def __init__(self, *args, **kwargs):
         super(CustomMLPPolicy, self).__init__(
-            *args,** kwargs,
-            net_arch=[dict(pi=[2880, 1440, 720, 360], vf=[2880, 1440, 720, 360])],
-            feature_extraction="mlp"
+            *args, **kwargs,
+            net_arch=[dict(pi=[2880, 1440, 720, 360],
+                           vf=[2880, 1440, 720, 360])]  # 移除feature_extraction参数
         )
 # class CustomMLPPolicy(common.ActorCriticPolicy):
 #     def __init__(self, *args, **kwargs):
