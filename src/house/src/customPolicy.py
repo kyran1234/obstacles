@@ -103,33 +103,110 @@ class ModifiedDeepNatureCNN(BaseFeaturesExtractor):
 #     return activ(linear(layer_7, 'fc3', n_hidden=128, init_scale=np.sqrt(2)))
 
 class TinyFilterDeepCNN(BaseFeaturesExtractor):
-    def __init__(self, observation_space: gym.spaces.Box, features_dim: int = 128):
+    """
+    严格匹配原TensorFlow版本的PyTorch特征提取器
+    保持卷积核大小、通道数、全连接层维度与原代码一致
+    """
+    def __init__(self, observation_space: spaces.Box, features_dim: int = 128):
         super().__init__(observation_space, features_dim)
-        # 假设输入观测是图像（调整通道数和尺寸以匹配你的实际观测）
-        n_input_channels = observation_space.shape[0]  # 根据你的观测空间修改
+        
+        # 输入图像通道数（原代码中为scaled_images的通道数）
+        n_input_channels = observation_space.shape[0]
+        
+        # 卷积层序列（严格对应原TensorFlow的5层卷积）
         self.cnn = nn.Sequential(
-            nn.Conv2d(n_input_channels, 6, kernel_size=2, stride=1),
+            # layer_1: c1卷积层 (6个2x2卷积核)
+            nn.Conv2d(
+                in_channels=n_input_channels,
+                out_channels=6,
+                kernel_size=2,
+                stride=1,
+                padding=0  # 原TensorFlow默认无padding
+            ),
+            nn.ReLU(),  # 对应tf.nn.relu
+            
+            # layer_2: c2卷积层 (8个2x2卷积核)
+            nn.Conv2d(
+                in_channels=6,
+                out_channels=8,
+                kernel_size=2,
+                stride=1,
+                padding=0
+            ),
             nn.ReLU(),
-            nn.Conv2d(6, 8, kernel_size=2, stride=1),
+            
+            # layer_3: c3卷积层 (10个2x2卷积核)
+            nn.Conv2d(
+                in_channels=8,
+                out_channels=10,
+                kernel_size=2,
+                stride=1,
+                padding=0
+            ),
             nn.ReLU(),
-            nn.Conv2d(8, 10, kernel_size=2, stride=1),
+            
+            # layer_4: c4卷积层 (12个3x3卷积核)
+            nn.Conv2d(
+                in_channels=10,
+                out_channels=12,
+                kernel_size=3,
+                stride=1,
+                padding=0
+            ),
             nn.ReLU(),
-            nn.Conv2d(10, 12, kernel_size=3, stride=1),
+            
+            # layer_5: c5卷积层 (14个3x3卷积核)
+            nn.Conv2d(
+                in_channels=12,
+                out_channels=14,
+                kernel_size=3,
+                stride=1,
+                padding=0
+            ),
             nn.ReLU(),
-            nn.Conv2d(12, 14, kernel_size=3, stride=1),
-            nn.ReLU(),
-            nn.Flatten(),  # 展平特征图
+            
+            # 对应原代码的conv_to_fc（展平特征图）
+            nn.Flatten()
         )
-        # 计算CNN输出的维度（根据输入尺寸自动计算）
+        
+        # 计算卷积层输出的扁平化维度（确保与原代码展平后尺寸一致）
         with torch.no_grad():
-            n_flatten = self.cnn(torch.as_tensor(observation_space.sample()[None]).float()).shape[1]
-        self.linear = nn.Sequential(nn.Linear(n_flatten, 256), nn.ReLU(),
-                                    nn.Linear(256, 128), nn.ReLU(),
-                                    nn.Linear(128, features_dim), nn.ReLU())
+            # 获取观测空间样本并添加批次维度
+            sample = observation_space.sample()[None, ...]  # 形状: (1, C, H, W)
+            # 计算卷积层输出尺寸
+            cnn_output = self.cnn(torch.as_tensor(sample, dtype=torch.float32))
+            n_flatten = cnn_output.shape[1]  # 扁平化后的维度
+        
+        # 全连接层序列（对应原TensorFlow的fc1、fc2、fc3）
+        self.fc = nn.Sequential(
+            # layer_6: fc1 (256隐藏单元)
+            nn.Linear(in_features=n_flatten, out_features=256),
+            nn.ReLU(),
+            
+            # layer_7: fc2 (128隐藏单元)
+            nn.Linear(in_features=256, out_features=128),
+            nn.ReLU(),
+            
+            # 输出层: fc3 (128隐藏单元，与原代码保持一致)
+            nn.Linear(in_features=128, out_features=features_dim),
+            nn.ReLU()
+        )
+        
+        # 初始化权重（匹配原代码的init_scale=np.sqrt(2)）
+        self._initialize_weights()
+
+    def _initialize_weights(self):
+        """初始化权重，匹配原TensorFlow的init_scale=np.sqrt(2)"""
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
+                # 原代码使用init_scale=np.sqrt(2)，对应PyTorch的Xavier初始化变种
+                nn.init.orthogonal_(m.weight, gain=np.sqrt(2))
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0.0)
 
     def forward(self, observations: torch.Tensor) -> torch.Tensor:
-        return self.linear(self.cnn(observations))
-
+        """前向传播，返回提取的特征"""
+        return self.fc(self.cnn(observations))
 
 # class CustomShallowCNNPolicy(common.ActorCriticPolicy):
 #     
