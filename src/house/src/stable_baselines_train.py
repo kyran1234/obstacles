@@ -21,14 +21,35 @@ class CustomPolicy(ActorCriticPolicy):
                                            net_arch=[dict(pi=[144, 144, 144],
                                                           vf=[144, 144, 144])],
                                            feature_extraction="mlp")
-
+#
+#if __name__ == '__main__':
+#	world_file = sys.argv[1]
+#	number_of_robots = sys.argv[2]
+#	rospy.init_node('stable_training', anonymous=True, log_level=rospy.WARN)
+#	env_temp = TurtleBot2MazeEnv
+#	env = SubprocVecEnv([lambda k=k:env_temp(world_file, k) for k in range(int(number_of_robots))])
+#	model = PPO2(CustomTinyDeepCNNPolicy, env, n_steps=900, ent_coef=0.01, learning_rate=0.0001, nminibatches=5, tensorboard_log="../PPO2_turtlebot_tensorboard/", verbose=1)
+#	
+#    model.learn(total_timesteps=1200000)
+#	model.save("ppo2_turtlebot")
 if __name__ == '__main__':
-	world_file = sys.argv[1]
-	number_of_robots = sys.argv[2]
-	rospy.init_node('stable_training', anonymous=True, log_level=rospy.WARN)
-	env_temp = TurtleBot2MazeEnv
-	env = DummyVecEnv([lambda k=k:env_temp(world_file, k) for k in range(int(number_of_robots))])
-	model = PPO(CustomTinyDeepCNNPolicy, env, n_steps=900, ent_coef=0.01, learning_rate=0.0001, batch_size=180, n_epochs=10, tensorboard_log="../PPO2_turtlebot_tensorboard/", verbose=1)
-	model.learn(total_timesteps=1200000)
-	model.save("ppo2_turtlebot")
-																																																																																																																																																											
+    world_file = sys.argv[1]
+    number_of_robots = sys.argv[2]
+    rospy.init_node('stable_training',anonymous=True, log_level=rospy.WARN)
+    env_temp = TurtleBot2MazeEnv
+    env = DummyVecEnv([lambda k=k:env_temp(world_file, k) for k in range(int(number_of_robots))])
+
+    model = PPO(
+        CustomTinyDeepCNNPolicy, 
+        env, 
+        n_steps=900, 
+        ent_coef=0.01, 
+        learning_rate=0.0001, 
+        # 移除nminibatches=5
+        batch_size=180,  # 可选：根据n_steps和期望的minibatch数量计算（例如900/5=180）
+        n_epochs=10,     # 可选：训练时的epoch数量（默认是10）
+        tensorboard_log="../PPO2_turtlebot_tensorboard/", 
+            verbose=1
+    )
+    model.learn(total_timesteps=1200000)
+    model.save("ppo2_turtlebot")																																																																																																																																																										

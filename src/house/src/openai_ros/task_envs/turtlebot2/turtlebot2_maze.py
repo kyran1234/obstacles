@@ -662,8 +662,6 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         if (self.current_distance2goal < 0.5):
             self._episode_done = True
             self._reached_goal = True
-
-
         return self.stacked_obs
         
 
