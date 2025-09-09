@@ -450,6 +450,10 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
                    self.goal_pose["x"] = -24.39
                    self.goal_pose["y"] = 1.021
 
+            elif(self.world_file_name == "mybot"):
+               self.goal_pose["x"] = 12.5
+               self.goal_pose["y"] = 0
+
 
     def _get_distance2goal(self):
         """ Gets the distance to the goal
