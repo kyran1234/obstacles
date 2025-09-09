@@ -220,11 +220,11 @@ class TinyFilterDeepCNN(BaseFeaturesExtractor):
         
         # 计算经过所有卷积层后的尺寸
         conv_c = observation_space.shape[0]
-        conv_w = self.input_width
-        conv_h = self.input_height
+        conv_w = observation_space.shape[2]
+        conv_h = observation_space.shape[1]
         
         # 卷积层定义
-        self.conv1 = nn.Conv2d(self.input_width, 6, kernel_size=2, stride=1)
+        self.conv1 = nn.Conv2d(conv_w, 6, kernel_size=2, stride=1)
         conv_c = conv2d_size_out(conv_c, 2)
         conv_h = conv2d_size_out(conv_h, 2)
         
@@ -267,22 +267,27 @@ class TinyFilterDeepCNN(BaseFeaturesExtractor):
         # 处理输入维度 (batch_size, height, width) -> (batch_size, 1, height, width)
         if len(x.shape) == 3:
             x = x.unsqueeze(1)  # 添加通道维度
-        
+        print(x.shape) 
+        x = x.permute(0, 3, 2, 1)
         # 卷积层
         x = F.relu(self.conv1(x))
+        print(x.shape)
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
         x = F.relu(self.conv4(x))
         x = F.relu(self.conv5(x))
-        
+        print(x.shape)
         # 展平
         x = x.view(x.size(0), -1)
-        
+        print(x.shape)
         # 全连接层
         x = F.relu(self.fc1(x))
+        print(x.shape)
         x = F.relu(self.fc2(x))
+        print(x.shape)
         x = F.relu(self.fc3(x))
-        
+        print(x.shape)
+
         return x
 
 # class CustomShallowCNNPolicy(common.ActorCriticPolicy):
