@@ -9,9 +9,9 @@ class Config():
         #NOTE 0.55,0.1,1.0,1.6,3.2,0.15,0.05,0.1,1.7,2.4,0.1,3.2,0.18
         self.max_speed = 0.65  # [m/s]
         self.min_speed = 0.0  # [m/s]
-        self.max_yawrate = 0.5  # [rad/s]
-        self.max_accel = 1.0  # [m/ss]
-        self.max_dyawrate = 1.5 # [rad/ss]
+        self.max_yawrate = 1.0  # [rad/s]
+        self.max_accel = 2.5  # [m/ss]
+        self.max_dyawrate = 3.2 # [rad/ss]
         self.dt = 0.1  # [s]
         self.predict_time = 1.5  # [s]
         self.to_goal_cost_gain = 2.4 #lower = detour

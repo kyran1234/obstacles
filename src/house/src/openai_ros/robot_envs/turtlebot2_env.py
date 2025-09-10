@@ -265,24 +265,9 @@ class TurtleBot2Env(robot_gazebo_env.RobotGazeboEnv):
         self._check_publishers_connection()
         # self._cmd_vel_pub.publish(cmd_vel_value)
         start_time = rospy.Time.now()
-        try:
-            while (rospy.Time.now() - start_time).to_sec() < 2.0 and not rospy.is_shutdown():
-                self._cmd_vel_pub.publish(cmd_vel_value)
-                rate.sleep()
-            cmd_vel_value.linear.x = 0.0
-            cmd_vel_value.linear.y = 0.0
-            cmd_vel_value.linear.z = 0.0
-            cmd_vel_value.angular.x = 0.0
-            cmd_vel_value.angular.y = 0.0
-            cmd_vel_value.angular.z = 0.0
-            for _ in range(3):  # 连续发送3次，确保指令被接收
-                self._cmd_vel_pub.publish(cmd_vel_value)
-                rate.sleep()
-        except rospy.ROSInterruptException:
-        # 异常时也发送零速度
-            cmd_vel_value.linear.x = 0.0
-            cmd_vel_value.angular.z = 0.0
+        while (rospy.Time.now() - start_time).to_sec() < 2.0 and not rospy.is_shutdown():
             self._cmd_vel_pub.publish(cmd_vel_value)
+            rate.sleep()
             
         # time.sleep(0.1)
         #time.sleep(0.02)

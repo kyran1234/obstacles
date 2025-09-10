@@ -60,11 +60,11 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         
         # Actions and Observations
         self.dec_obs = rospy.get_param("/turtlebot2/number_decimals_precision_obs", 1)
-        self.linear_forward_speed = rospy.get_param('/turtlebot2/linear_forward_speed',0.0)
-        self.linear_turn_speed = rospy.get_param('/turtlebot2/linear_turn_speed',0.0)
-        self.angular_speed = rospy.get_param('/turtlebot2/angular_speed',0.0)
-        self.init_linear_forward_speed = rospy.get_param('/turtlebot2/init_linear_forward_speed',0.0)
-        self.init_linear_turn_speed = rospy.get_param('/turtlebot2/init_linear_turn_speed',0.0)
+        self.linear_forward_speed = rospy.get_param('/turtlebot2/linear_forward_speed',1)
+        self.linear_turn_speed = rospy.get_param('/turtlebot2/linear_turn_speed',0.2)
+        self.angular_speed = rospy.get_param('/turtlebot2/angular_speed',0.1)
+        self.init_linear_forward_speed = rospy.get_param('/turtlebot2/init_linear_forward_speed',0.3)
+        self.init_linear_turn_speed = rospy.get_param('/turtlebot2/init_linear_turn_speed',0.4)
 
         self.n_laser_discretization = rospy.get_param('/turtlebot2/n_laser_discretization',128)
         self.n_observations = rospy.get_param('/turtlebot2/n_observations',144)
@@ -191,17 +191,17 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
     def _set_init_pose(self):
         """Sets the Robot in its init pose
         """
-        #self.move_base( self.init_linear_forward_speed,
-        #                self.init_linear_turn_speed,
-        #                epsilon=0.05,
-        #                update_rate=10,
-        #                min_laser_distance=-1)
-        self.move_base( 0.0,
-                        0.0,
+        self.move_base( self.init_linear_forward_speed,
+                        self.init_linear_turn_speed,
                         epsilon=0.05,
                         update_rate=10,
                         min_laser_distance=-1)
-        return True
+        # self.move_base( 0.0,
+        #                 0.0,
+        #                 epsilon=0.05,
+        #                 update_rate=10,
+        #                 min_laser_distance=-1)
+        # return True
 
 
     def _get_init_pose(self):
@@ -517,6 +517,8 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         odom_dict_init["u"] = odom_data_init.twist.twist.linear.x
         odom_dict_init["omega"] = odom_data_init.twist.twist.angular.z
         cnfg = Config(odom_dict_init, self.goal_pose)
+        print("first\n")
+        print(odom_dict_init)
         obs_init = Obstacles(laser_scan.ranges, cnfg)
         self.obs_list_stacked = numpy.column_stack((obs_init.obst for _ in range(0, self.n_stacked_frames)))
 
@@ -622,6 +624,8 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         self.odom_dict["theta"] = e[2]
         self.odom_dict["u"] = odom_data.twist.twist.linear.x
         self.odom_dict["omega"] = odom_data.twist.twist.angular.z
+        print("second\n")
+        print(self.odom_dict)
         cnfg = Config(self.odom_dict, self.goal_pose)
         self.obs = Obstacles(laser_scan.ranges, cnfg)
 
