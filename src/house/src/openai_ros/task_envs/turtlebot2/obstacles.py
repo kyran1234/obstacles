@@ -117,5 +117,3 @@ class Obstacles():
                 self.obst = np.vstack((self.obst,obs_row))
 
         # print("The set size {}".format((self.obst.shape)))
-
-

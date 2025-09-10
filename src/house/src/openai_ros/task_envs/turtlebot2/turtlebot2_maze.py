@@ -60,9 +60,9 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         
         # Actions and Observations
         self.dec_obs = rospy.get_param("/turtlebot2/number_decimals_precision_obs", 1)
-        self.linear_forward_speed = rospy.get_param('/turtlebot2/linear_forward_speed',1)
-        self.linear_turn_speed = rospy.get_param('/turtlebot2/linear_turn_speed',0.2)
-        self.angular_speed = rospy.get_param('/turtlebot2/angular_speed',0.1)
+        self.linear_forward_speed = rospy.get_param('/turtlebot2/linear_forward_speed',0.0)
+        self.linear_turn_speed = rospy.get_param('/turtlebot2/linear_turn_speed',0.0)
+        self.angular_speed = rospy.get_param('/turtlebot2/angular_speed',0.0)
         self.init_linear_forward_speed = rospy.get_param('/turtlebot2/init_linear_forward_speed',0.3)
         self.init_linear_turn_speed = rospy.get_param('/turtlebot2/init_linear_turn_speed',0.4)
 
@@ -97,9 +97,7 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         self._get_init_pose()
         # 下面一行有问题
         super(TurtleBot2MazeEnv, self).__init__(robot_number=robot_number, initial_pose = self.initial_pose)
-        print("bb")
         self.gazebo = GazeboConnection(start_init_physics_parameters= True, robot_number = self.robot_number , initial_pose = self.initial_pose, reset_world_or_sim="ROBOT")
-        print("cc")
         # We create two arrays based on the binary values that will be assigned
         # In the discretization method.
         #laser_scan = self._check_laser_scan_ready()
@@ -109,11 +107,8 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         # Laser data
         self.laser_scan_frame = laser_scan.header.frame_id
 
-        
-        
         # Number of laser reading jumped
         self.new_ranges = int(math.ceil(float(len(laser_scan.ranges)) / float(self.n_laser_discretization)))
-
         
         rospy.logdebug("n_observations===>"+str(self.n_observations))
         rospy.logdebug("new_ranges, jumping laser readings===>"+str(self.new_ranges))
@@ -358,14 +353,14 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
             if (self.robot_number == 0):
                 self.initial_pose["x_init"] = 0.0
                 self.initial_pose["y_init"] = 0.0
-                self.initial_pose["z_init"] = 0.0
-                self.initial_pose["roll_init"] = 0.0
-                self.initial_pose["pitch_init"] = 0.0
-                self.initial_pose["yaw_init"] = 0.0
+                self.initial_pose["z_init"] = 0.0544
+                # self.initial_pose["roll_init"] = 0.0
+                # self.initial_pose["pitch_init"] = 0.0
+                # self.initial_pose["yaw_init"] = 0.0
                 # 如果需要四元数表示，可以添加以下行
-                self.initial_pose["x_rot_init"] = 0.0
-                self.initial_pose["y_rot_init"] = 0.0
-                self.initial_pose["z_rot_init"] = 0.0
+                self.initial_pose["x_rot_init"] = -0.0002
+                self.initial_pose["y_rot_init"] = -0.0022
+                self.initial_pose["z_rot_init"] = 0.0027
                 self.initial_pose["w_rot_init"] = 1.0
 
 
@@ -451,8 +446,8 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
                    self.goal_pose["y"] = 1.021
 
             elif(self.world_file_name == "mybot"):
-               self.goal_pose["x"] = 12.5
-               self.goal_pose["y"] = 0
+               self.goal_pose["x"] = 3.5
+               self.goal_pose["y"] = -5.5
 
 
     def _get_distance2goal(self):
@@ -577,7 +572,8 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         if (angular_speed < max_reachable_vel_w) and (angular_speed > min_reachable_vel_w):
             self.list_angular_vel.append([min_reachable_vel_w, max_reachable_vel_w, True])
 
-
+        print(linear_speed)
+        print(angular_speed)
         
         # We tell TurtleBot2 the linear and angular speed to set to execute
         self.move_base( linear_speed,

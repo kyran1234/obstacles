@@ -64,11 +64,9 @@ class TurtleBot2Env(robot_gazebo_env.RobotGazeboEnv):
                                             reset_world_or_sim="WORLD")
 
 
-        print("aaa")
         self.gazebo.unpauseSim()#尝试去掉这一行的#
         # self.controllers_object.reset_controllers()#尝试去掉这一行的#
         # self._check_all_sensors_ready()
-        print("bbb")
         # We Start all the ROS related Subscribers and publishers
         rospy.Subscriber("/odom", Odometry, self._odom_callback)
         #rospy.Subscriber("/camera/depth/image_raw", Image, self._camera_depth_image_raw_callback)
@@ -255,13 +253,19 @@ class TurtleBot2Env(robot_gazebo_env.RobotGazeboEnv):
         :param update_rate: Rate at which we check the odometry.
         :return: 
         """
+        rate = rospy.Rate(10) 
         cmd_vel_value = Twist()
         cmd_vel_value.linear.x = linear_speed
         cmd_vel_value.angular.z = angular_speed
         rospy.logdebug("TurtleBot2 Base Twist Cmd>>" + str(cmd_vel_value))
         self._check_publishers_connection()
-        self._cmd_vel_pub.publish(cmd_vel_value)
-        time.sleep(0.1)
+        # self._cmd_vel_pub.publish(cmd_vel_value)
+        start_time = rospy.Time.now()
+        while (rospy.Time.now() - start_time).to_sec() < 2.0 and not rospy.is_shutdown():
+            self._cmd_vel_pub.publish(cmd_vel_value)
+            rate.sleep()
+            
+        # time.sleep(0.1)
         #time.sleep(0.02)
         """
         self.wait_until_twist_achieved(cmd_vel_value,
