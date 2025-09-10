@@ -37,7 +37,8 @@ if __name__ == '__main__':
     number_of_robots = sys.argv[2]
     rospy.init_node('stable_training',anonymous=True, log_level=rospy.WARN)
     env_temp = TurtleBot2MazeEnv
-    env = DummyVecEnv([lambda k=k:env_temp(world_file, k) for k in range(int(number_of_robots))])
+    # env = DummyVecEnv([lambda k=k:env_temp(world_file, k) for k in range(int(number_of_robots))])
+    env = TurtleBot2MazeEnv(world_file, 0)
 
     model = PPO(
         CustomTinyDeepCNNPolicy, 

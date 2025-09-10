@@ -132,6 +132,7 @@ def main():
 
 			minpos = np.argmin(cost_list)
 			pub = rospy.Publisher("cmd_vel", Twist, queue_size=1)
+			print("multiprocess\n\n")
 			speed = Twist()
 			speed.linear.x = v_list[minpos]
 			speed.angular.z = w_list[minpos]

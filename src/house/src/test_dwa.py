@@ -487,6 +487,17 @@ if __name__ == '__main__':
         initial_pose["w_rot_init"] = 1
         robot_goal["x"] = 4.4
         robot_goal["y"] = -8.4
+
+    elif world_name == "mybot":
+
+        initial_pose["x_init"] = 0.0
+        initial_pose["y_init"] = 0.0
+        initial_pose["x_rot_init"] = 0
+        initial_pose["y_rot_init"] = 0
+        initial_pose["z_rot_init"] = 0
+        initial_pose["w_rot_init"] = 1
+        robot_goal["x"] = 4.4
+        robot_goal["y"] = -8.4
    
     
 

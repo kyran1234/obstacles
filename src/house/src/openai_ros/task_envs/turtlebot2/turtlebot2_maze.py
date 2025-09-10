@@ -63,8 +63,8 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         self.linear_forward_speed = rospy.get_param('/turtlebot2/linear_forward_speed',0.0)
         self.linear_turn_speed = rospy.get_param('/turtlebot2/linear_turn_speed',0.0)
         self.angular_speed = rospy.get_param('/turtlebot2/angular_speed',0.0)
-        self.init_linear_forward_speed = rospy.get_param('/turtlebot2/init_linear_forward_speed',0.3)
-        self.init_linear_turn_speed = rospy.get_param('/turtlebot2/init_linear_turn_speed',0.4)
+        self.init_linear_forward_speed = rospy.get_param('/turtlebot2/init_linear_forward_speed',0.0)
+        self.init_linear_turn_speed = rospy.get_param('/turtlebot2/init_linear_turn_speed',0.0)
 
         self.n_laser_discretization = rospy.get_param('/turtlebot2/n_laser_discretization',128)
         self.n_observations = rospy.get_param('/turtlebot2/n_observations',144)
@@ -191,12 +191,16 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
     def _set_init_pose(self):
         """Sets the Robot in its init pose
         """
-        self.move_base( self.init_linear_forward_speed,
-                        self.init_linear_turn_speed,
+        #self.move_base( self.init_linear_forward_speed,
+        #                self.init_linear_turn_speed,
+        #                epsilon=0.05,
+        #                update_rate=10,
+        #                min_laser_distance=-1)
+        self.move_base( 0.0,
+                        0.0,
                         epsilon=0.05,
                         update_rate=10,
                         min_laser_distance=-1)
-
         return True
 
 
