@@ -69,13 +69,13 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         self.n_laser_discretization = rospy.get_param('/turtlebot2/n_laser_discretization',128)
         self.n_observations = rospy.get_param('/turtlebot2/n_observations',144)
         self.min_range = rospy.get_param('/turtlebot2/min_range',0.3)
-        self.max_cost = rospy.get_param('/turtlebot2/max_cost',1)
+        self.max_cost = rospy.get_param('/turtlebot2/max_cost',3)
         self.min_cost = rospy.get_param('/turtlebot2/min_cost',0)
         self.n_stacked_frames = rospy.get_param('/turtlebot2/n_stacked_frames',10)
         self.n_skipped_frames = rospy.get_param('/turtlebot2/n_skipped_frames',4)
 
-        self.max_linear_speed = rospy.get_param('/turtlebot2/max_linear_speed',0.65)
-        self.max_angular_speed = rospy.get_param('/turtlebot2/max_angular_speed',1)
+        self.max_linear_speed = rospy.get_param('/turtlebot2/max_linear_speed',1.3)
+        self.max_angular_speed = rospy.get_param('/turtlebot2/max_angular_speed',2.6)
 
         self.min_linear_speed = rospy.get_param('/turtlebot2/min_linear_speed',0)
         self.min_angular_speed = rospy.get_param('/turtlebot2/min_angular_speed',0)
@@ -450,8 +450,8 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
                    self.goal_pose["y"] = 1.021
 
             elif(self.world_file_name == "mybot"):
-               self.goal_pose["x"] = 3.5
-               self.goal_pose["y"] = -5.5
+               self.goal_pose["x"] = 7.3
+               self.goal_pose["y"] = -6.1
 
 
     def _get_distance2goal(self):

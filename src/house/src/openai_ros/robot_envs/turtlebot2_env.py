@@ -256,20 +256,17 @@ class TurtleBot2Env(robot_gazebo_env.RobotGazeboEnv):
         rate = rospy.Rate(10) 
         cmd_vel_value = Twist()
         cmd_vel_value.linear.x = linear_speed
-        cmd_vel_value.linear.y = 0.0
-        cmd_vel_value.linear.z = 0.0
-        cmd_vel_value.angular.x = 0.0
-        cmd_vel_value.angular.y = 0.0
         cmd_vel_value.angular.z = angular_speed
         rospy.logdebug("TurtleBot2 Base Twist Cmd>>" + str(cmd_vel_value))
         self._check_publishers_connection()
         # self._cmd_vel_pub.publish(cmd_vel_value)
-        start_time = rospy.Time.now()
-        while (rospy.Time.now() - start_time).to_sec() < 2.0 and not rospy.is_shutdown():
-            self._cmd_vel_pub.publish(cmd_vel_value)
-            rate.sleep()
+        # start_time = rospy.Time.now()
+        # while (rospy.Time.now() - start_time).to_sec() < 2.0 and not rospy.is_shutdown():
+        #     self._cmd_vel_pub.publish(cmd_vel_value)
+        #     rate.sleep()
+        self._cmd_vel_pub.publish(cmd_vel_value)
             
-        # time.sleep(0.1)
+        time.sleep(10)
         #time.sleep(0.02)
         """
         self.wait_until_twist_achieved(cmd_vel_value,

@@ -9,8 +9,8 @@
   </gazebo>
 
   <gazebo reference="left_wheel_link">
-    <mu1>0.5</mu1>
-    <mu2>0.5</mu2>
+    <mu1>0.3</mu1>
+    <mu2>0.3</mu2>
     <kp>500000.0</kp>
     <kd>10.0</kd>
     <minDepth>0.001</minDepth>
@@ -20,8 +20,8 @@
   </gazebo>
 
   <gazebo reference="right_wheel_link">
-    <mu1>0.5</mu1>
-    <mu2>0.5</mu2>
+    <mu1>0.3</mu1>
+    <mu2>0.3</mu2>
     <kp>500000.0</kp>
     <kd>10.0</kd>
     <minDepth>0.001</minDepth>
@@ -31,8 +31,8 @@
   </gazebo>
 
   <gazebo reference="ball_wheel_link">
-    <mu1>0.4</mu1>
-    <mu2>0.4</mu2>
+    <mu1>0.1</mu1>
+    <mu2>0.1</mu2>
     <kp>500000.0</kp>
     <kd>100.0</kd>
     <minDepth>0.001</minDepth>
@@ -65,8 +65,8 @@
       <rightJoint>right_wheel_joint</rightJoint>
       <wheelSeparation>0.180</wheelSeparation>
       <wheelDiameter>0.05</wheelDiameter>
-      <wheelAcceleration>1.0</wheelAcceleration>
-      <wheelTorque>5.0</wheelTorque>
+      <wheelAcceleration>7.0</wheelAcceleration>
+      <wheelTorque>75.0</wheelTorque>
       <rosDebugLevel>na</rosDebugLevel>
     </plugin>
   </gazebo>
