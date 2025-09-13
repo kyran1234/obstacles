@@ -21,12 +21,12 @@ import csv
 
 
 # The path is __init__.py of openai_ros, where we import the TurtleBot2MazeEnv directly
-timestep_limit_per_episode = 1000 # Can be any Value
+# timestep_limit_per_episode = 1000 # Can be any Value
 
 register(
         id='TurtleBot2Maze-v0',
         entry_point='openai_ros.task_envs.turtlebot2.turtlebot2_maze:TurtleBot2MazeEnv',
-        max_episode_steps=timestep_limit_per_episode,
+        # max_episode_steps=timestep_limit_per_episode,
     )
 
 class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):

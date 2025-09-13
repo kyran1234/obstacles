@@ -266,7 +266,7 @@ class TurtleBot2Env(robot_gazebo_env.RobotGazeboEnv):
         #     rate.sleep()
         self._cmd_vel_pub.publish(cmd_vel_value)
             
-        time.sleep(10)
+        time.sleep(0.1)
         #time.sleep(0.02)
         """
         self.wait_until_twist_achieved(cmd_vel_value,
