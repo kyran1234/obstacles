@@ -28,11 +28,22 @@ class Obstacles():
 
         maxAngle = 270
         scanSkip = 4
+        # 计算预期的障碍物数量（需与turtlebot2_maze.py中的91对应，此处假设91为目标长度）
+        target_length = 91
+        self.obst = np.full((target_length, 2), np.inf)
+
         anglePerSlot = (float(maxAngle) / deg) * scanSkip
         angleCount = 0
         angleValuePos = 0
         angleValueNeg = 0
+
+        obs_idx = 0 # 用于跟踪填充到self.obst的索引
+
         for angle in self.myRange(0,deg-1,scanSkip):
+
+            if obs_idx >= target_length:
+                break  # 超出目标长度则截断
+
             distance = self.ranges[angle]
             
             if(angleCount < (deg / (2*scanSkip))):
@@ -92,6 +103,8 @@ class Obstacles():
 
                 # round coords to nearest 0.125m
                 obsX = round((self.config.x + (distance * math.cos(abs(objTheta))))*8)/8
+                self.obst[obs_idx] = [obsX, obsY]  # 填充到固定数组
+                obs_idx += 1
                 # determine direction of Y coord
                 # if (objTheta < 0): # uncomment and comment line below for Gazebo simulation
                 if (objTheta < 0):

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+ #!/usr/bin/env python
 
 import rospy
 import numpy
@@ -21,12 +21,12 @@ import csv
 
 
 # The path is __init__.py of openai_ros, where we import the TurtleBot2MazeEnv directly
-# timestep_limit_per_episode = 1000 # Can be any Value
+timestep_limit_per_episode = 1000000 # Can be any Value
 
 register(
         id='TurtleBot2Maze-v0',
         entry_point='openai_ros.task_envs.turtlebot2.turtlebot2_maze:TurtleBot2MazeEnv',
-        # max_episode_steps=timestep_limit_per_episode,
+        max_episode_steps=timestep_limit_per_episode,
     )
 
 class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
@@ -68,7 +68,7 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
 
         self.n_laser_discretization = rospy.get_param('/turtlebot2/n_laser_discretization',128)
         self.n_observations = rospy.get_param('/turtlebot2/n_observations',144)
-        self.min_range = rospy.get_param('/turtlebot2/min_range',0.3)
+        self.min_range = rospy.get_param('/turtlebot2/min_range',0.126) #当激光雷达检测到距离小于self.min_range（默认 0.3 米）时，设置self._episode_done = True
         self.max_cost = rospy.get_param('/turtlebot2/max_cost',3)
         self.min_cost = rospy.get_param('/turtlebot2/min_cost',0)
         self.n_stacked_frames = rospy.get_param('/turtlebot2/n_stacked_frames',10)
@@ -674,10 +674,15 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         
 
     def _is_done(self, observations):
+        laser_scan = self.get_laser_scan()
+        min_distance = min(laser_scan.ranges)
+        if min_distance < self.min_range:
+            rospy.loginfo("Collision detected! Resetting environment.")
+            print("Collision detected! Resetting environment.")
+            return True  # 碰撞时结束当前episode
         
         if self._episode_done and (not self._reached_goal):
             rospy.logdebug("TurtleBot2 is Too Close to wall==>"+str(self._episode_done))
-            
 
         elif self._episode_done and self._reached_goal:
             rospy.logdebug("Robot {} reached the goal".format(self.robot_number))
@@ -730,6 +735,8 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         value.
         """
         self._episode_done = False
+
+        count = 0
         
         discretized_ranges = []
         filtered_range = []
@@ -758,8 +765,21 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
                         self.collision_danger_cost += self.prox_penalty1 / round(item,self.dec_obs)
                     else:
                         self.collision_danger_cost += self.prox_penalty2 / round(item,self.dec_obs)
-
-                if (self.min_range > item > 0):
+                print(item)
+                print(self.min_range)
+                while(self.min_range > item > 0):
+                    count = count + 1
+                    time.sleep(0.15)
+                    print(count)
+                    print(item)
+                    print(self.min_range)
+                    if(self.min_range < item):
+                        break
+                    if(count >= 3):
+                        break
+                print(count)
+                if (count >= 3):
+                    count = 0
                     rospy.logerr("done Validation >>> item=" + str(item)+"< "+str(self.min_range))
 
                     if not self._episode_done:
