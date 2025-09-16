@@ -29,7 +29,7 @@ class Obstacles():
         maxAngle = 270
         scanSkip = 4
         # 计算预期的障碍物数量（需与turtlebot2_maze.py中的91对应，此处假设91为目标长度）
-        target_length = 91
+        target_length = 144
         self.obst = np.full((target_length, 2), np.inf)
         obs_idx = 0 # 用于跟踪填充到self.obst的索引
 

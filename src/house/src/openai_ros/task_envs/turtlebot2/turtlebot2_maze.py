@@ -18,6 +18,7 @@ from openai_ros.gazebo_connection import GazeboConnection
 import cv2
 import os
 import csv
+import random
 
 
 # The path is __init__.py of openai_ros, where we import the TurtleBot2MazeEnv directly
@@ -38,6 +39,7 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         
         # Only variable needed to be set here
         self.world_file_name = world_file_name
+        
         number_actions = rospy.get_param('/turtlebot2/n_actions',144)
         self.action_space = spaces.Discrete(number_actions)
         
@@ -68,7 +70,7 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
 
         self.n_laser_discretization = rospy.get_param('/turtlebot2/n_laser_discretization',128)
         self.n_observations = rospy.get_param('/turtlebot2/n_observations',144)
-        self.min_range = rospy.get_param('/turtlebot2/min_range',0.126) #当激光雷达检测到距离小于self.min_range（默认 0.3 米）时，设置self._episode_done = True
+        self.min_range = rospy.get_param('/turtlebot2/min_range',0.3) #当激光雷达检测到距离小于self.min_range（默认 0.3 米）时，设置self._episode_done = True
         self.max_cost = rospy.get_param('/turtlebot2/max_cost',3)
         self.min_cost = rospy.get_param('/turtlebot2/min_cost',0)
         self.n_stacked_frames = rospy.get_param('/turtlebot2/n_stacked_frames',10)
@@ -97,7 +99,12 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         self._get_init_pose()
         # 下面一行有问题
         super(TurtleBot2MazeEnv, self).__init__(robot_number=robot_number, initial_pose = self.initial_pose)
-        self.gazebo = GazeboConnection(start_init_physics_parameters= True, robot_number = self.robot_number , initial_pose = self.initial_pose, reset_world_or_sim="ROBOT")
+        random_prob = random.random()
+        print(random_prob)
+        if random_prob < 0.15:
+            self.gazebo = GazeboConnection(start_init_physics_parameters= True, robot_number = self.robot_number , initial_pose = self.initial_pose, reset_world_or_sim="WORLD")
+        else:
+            self.gazebo = GazeboConnection(start_init_physics_parameters= True, robot_number = self.robot_number , initial_pose = self.initial_pose, reset_world_or_sim="NO_RESET_SIM")
         # We create two arrays based on the binary values that will be assigned
         # In the discretization method.
         #laser_scan = self._check_laser_scan_ready()
@@ -148,7 +155,7 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         self.forwards_reward = rospy.get_param("/turtlebot2/forwards_reward",5)
         self.invalid_penalty = rospy.get_param("/turtlebot2/invalid_penalty",20)
         self.end_episode_points = rospy.get_param("/turtlebot2/end_episode_points",2000)
-        self.goal_reaching_points = rospy.get_param("/turtlebot2/goal_reaching_points",500)
+        self.goal_reaching_points = rospy.get_param("/turtlebot2/goal_reaching_points",1000)
 
         self.cumulated_steps = 0.0
 
@@ -450,8 +457,8 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
                    self.goal_pose["y"] = 1.021
 
             elif(self.world_file_name == "mybot"):
-               self.goal_pose["x"] = 7.3
-               self.goal_pose["y"] = -6.1
+               self.goal_pose["x"] = 2.4
+               self.goal_pose["y"] = -4.2
 
 
     def _get_distance2goal(self):
@@ -606,6 +613,7 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         discretized_observations = self.discretize_observation( laser_scan,
                                                                 self.new_ranges
                                                                 )
+        print("discretized_observations ok")
 
 
         rospy.logdebug("Observations==>"+str(discretized_observations))
@@ -675,8 +683,13 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
 
     def _is_done(self, observations):
         laser_scan = self.get_laser_scan()
+        # print("laser_scan")
+        # print(laser_scan)
         min_distance = min(laser_scan.ranges)
+        rospy.logwarn("min_distance")
+        print(min_distance)
         if min_distance < self.min_range:
+            print(self.min_range)
             rospy.loginfo("Collision detected! Resetting environment.")
             print("Collision detected! Resetting environment.")
             return True  # 碰撞时结束当前episode
@@ -685,6 +698,7 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
             rospy.logdebug("TurtleBot2 is Too Close to wall==>"+str(self._episode_done))
 
         elif self._episode_done and self._reached_goal:
+            print("reach goal")
             rospy.logdebug("Robot {} reached the goal".format(self.robot_number))
             
         else:
@@ -692,40 +706,96 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
 
         return self._episode_done
 
+#    def _compute_reward(self, observations, done):
+#
+#        reward = 0.0
+#
+#
+#        reward += 200*(self.previous_distance2goal - self.current_distance2goal)
+#
+#        self.previous_distance2goal = self.current_distance2goal
+#
+#        if self.last_action != 0:
+#            reward += self.forwards_reward
+#
+#        
+#        if self._episode_done and (not self._reached_goal):
+#            reward += -1*self.end_episode_points
+#            self.goal_reaching_status.data = False
+#            self.goal_reaching_status_pub.publish(self.goal_reaching_status)
+#
+#        elif self._episode_done and self._reached_goal:
+#            reward += self.goal_reaching_points
+#            self.goal_reaching_status.data = True
+#            self.goal_reaching_status_pub.publish(self.goal_reaching_status)
+#
+#        # Danger of collision cost
+#        if self.select_collision_danger_cost:
+#            reward += self.collision_danger_cost
+#
+#        rospy.logdebug("reward=" + str(reward))
+#        self.cumulated_reward += reward
+#        rospy.logdebug("Cumulated_reward=" + str(self.cumulated_reward))
+#        self.cumulated_steps += 1
+#        rospy.logdebug("Cumulated_steps=" + str(self.cumulated_steps))
+#        
+#        return reward
+
     def _compute_reward(self, observations, done):
+        reward = 0.0
 
-        reward = 0
+        # 1. 原有基于距离变化的奖励（鼓励向目标移动）
+        distance_change_reward = 200 * (self.previous_distance2goal - self.current_distance2goal)
+        reward += distance_change_reward
 
+        # 2. 新增渐进式接近目标奖励（距离越近，奖励越高）
+        # 设定距离阈值：超过此距离无额外奖励，低于此距离随接近度提升奖励
+        max_proximity_distance = 10.0  # 最大有效距离（可根据场景调整）
+        min_proximity_distance = 0.5   # 到达目标的距离阈值（与现有逻辑一致）
 
-        reward += 200*(self.previous_distance2goal - self.current_distance2goal)
+        # 仅在有效距离范围内计算渐进奖励
+        if self.current_distance2goal < max_proximity_distance:
+            # 计算距离比例（0~1，越接近目标比例越接近1）
+            proximity_ratio = 1 - (self.current_distance2goal / max_proximity_distance)
+            # 设定最大渐进奖励值（可根据需要调整）
+            max_proximity_reward = 100  
+            # 计算当前渐进奖励（距离越近，奖励越高）
+            proximity_reward = proximity_ratio * max_proximity_reward
+            reward += proximity_reward
+            rospy.logdebug(f"渐进式接近奖励: {proximity_reward:.2f} (距离: {self.current_distance2goal:.2f})")
 
-        self.previous_distance2goal = self.current_distance2goal
-
+        # 3. 前进动作奖励（原有逻辑）
         if self.last_action != 0:
             reward += self.forwards_reward
+            rospy.logdebug(f"前进奖励: {self.forwards_reward}")
 
-        
-        if self._episode_done and (not self._reached_goal):
-            reward += -1*self.end_episode_points
-            self.goal_reaching_status.data = False
+        # 4. 终端状态奖励（原有逻辑）
+        if self._episode_done:
+            if not self._reached_goal:
+                # 碰撞或超时结束，给予惩罚
+                reward += -1 * self.end_episode_points
+                rospy.logdebug(f"结束惩罚: {-self.end_episode_points}")
+                self.goal_reaching_status.data = False
+            else:
+                # 到达目标，给予额外目标奖励
+                reward += self.goal_reaching_points
+                rospy.logdebug(f"目标达成奖励: {self.goal_reaching_points}")
+                self.goal_reaching_status.data = True
             self.goal_reaching_status_pub.publish(self.goal_reaching_status)
 
-        elif self._episode_done and self._reached_goal:
-            reward += self.goal_reaching_points
-            self.goal_reaching_status.data = True
-            self.goal_reaching_status_pub.publish(self.goal_reaching_status)
-
-        # Danger of collision cost
+        # 5. 碰撞危险惩罚（原有逻辑）
         if self.select_collision_danger_cost:
             reward += self.collision_danger_cost
+            rospy.logdebug(f"碰撞危险惩罚: {self.collision_danger_cost:.2f}")
 
-        rospy.logdebug("reward=" + str(reward))
+        # 更新累积奖励和步数
+        self.previous_distance2goal = self.current_distance2goal
         self.cumulated_reward += reward
-        rospy.logdebug("Cumulated_reward=" + str(self.cumulated_reward))
         self.cumulated_steps += 1
-        rospy.logdebug("Cumulated_steps=" + str(self.cumulated_steps))
-        
+
+        rospy.logdebug(f"当前步奖励: {reward:.2f}，累积奖励: {self.cumulated_reward:.2f}")
         return reward
+    
 
     # Internal TaskEnv Methods
     
@@ -749,15 +819,17 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
         rospy.logdebug("data=" + str(data))
         rospy.logwarn("mod=" + str(mod))
         self.collision_danger_cost = 0
-
+        # print(data.ranges)
         for i, item in enumerate(data.ranges):
             if (i%mod==0):
+                print(i)
                 if item == float ('Inf') or numpy.isinf(item):
                     #discretized_ranges.append(self.max_laser_value)
                     discretized_ranges.append(round(max_laser_value,self.dec_obs))
                 elif numpy.isnan(item):
                     #discretized_ranges.append(self.min_laser_value)
-                    discretized_ranges.append(round(min_laser_value,self.dec_obs))
+                    # discretized_ranges.append(round(min_laser_value,self.dec_obs))
+                    discretized_ranges.append(round(self.min_range,self.dec_obs))
                 else:
                     #discretized_ranges.append(int(item))
                     discretized_ranges.append(round(item,self.dec_obs))
@@ -765,27 +837,28 @@ class TurtleBot2MazeEnv(turtlebot2_env.TurtleBot2Env):
                         self.collision_danger_cost += self.prox_penalty1 / round(item,self.dec_obs)
                     else:
                         self.collision_danger_cost += self.prox_penalty2 / round(item,self.dec_obs)
-                print(item)
-                print(self.min_range)
-                while(self.min_range > item > 0):
-                    count = count + 1
-                    time.sleep(0.15)
-                    print(count)
+                # if(self.min_range > item > 0):
+                #     count = count + 1
+                #     print(count)
+                #     print(item)
+                #     print(self.min_range)
+                #     rospy.logerr("count+1")
+                #     time.sleep(0.02)
+                #     
+# 
+                # else:
+                    count = 0
+                    time.sleep(0.02)
+                if (self.min_range > item > 0):
+                    # count = 0
                     print(item)
                     print(self.min_range)
-                    if(self.min_range < item):
-                        break
-                    if(count >= 3):
-                        break
-                print(count)
-                if (count >= 3):
-                    count = 0
                     rospy.logerr("done Validation >>> item=" + str(item)+"< "+str(self.min_range))
-
                     if not self._episode_done:
                         self.episode_collisions += 1
                     self._episode_done = True
                 else:
+                    count = 0
                     rospy.logwarn("NOT done Validation >>> item=" + str(item)+"< "+str(self.min_range))
                 # We add last value appended
                 filtered_range.append(discretized_ranges[-1])

@@ -13,7 +13,7 @@ class RobotGazeboEnv(gym.Env):
 
         # To reset Simulations
         rospy.logdebug("START init RobotGazeboEnv")
-        self.gazebo = GazeboConnection(start_init_physics_parameters, robot_number, initial_pose = initial_pose, reset_world_or_sim="ROBOT")
+        self.gazebo = GazeboConnection(start_init_physics_parameters, robot_number, initial_pose = initial_pose, reset_world_or_sim="WORLD")
         self.controllers_object = ControllersConnection(namespace=robot_name_space, controllers_list=controllers_list)
         self.reset_controls = reset_controls
         self.robot_number = robot_number
@@ -48,7 +48,9 @@ class RobotGazeboEnv(gym.Env):
         # self.gazebo.unpauseSim()
         self._set_action(action)
         # self.gazebo.pauseSim()
+        print("get_obs")
         obs = self._get_obs()
+        print("is_done")
         done = self._is_done(obs)
         info = {}
         reward = self._compute_reward(obs, done)

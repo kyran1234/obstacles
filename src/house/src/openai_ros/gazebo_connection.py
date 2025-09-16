@@ -6,6 +6,7 @@ from gazebo_msgs.msg import ODEPhysics
 from gazebo_msgs.srv import SetPhysicsProperties, SetPhysicsPropertiesRequest, SetModelState, SetModelStateRequest
 from std_msgs.msg import Float64
 from geometry_msgs.msg import Vector3
+import random
 
 class GazeboConnection():
 
@@ -101,6 +102,12 @@ class GazeboConnection():
             self.resetRobot()
         # 不重置任何内容
         elif self.reset_world_or_sim == "NO_RESET_SIM":
+            ran = random.random()
+            print("ran")
+            print(ran)
+            if ran < 0.01:  # 0.05即5%概率
+                rospy.logdebug("触发5%概率的全仿真重置")
+                self.resetSimulation() 
             rospy.logdebug("NO RESET SIMULATION SELECTED")
         else:
             rospy.logdebug("WRONG Reset Option:"+str(self.reset_world_or_sim))
